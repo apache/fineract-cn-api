@@ -18,12 +18,14 @@ package io.mifos.core.api.util;
 import feign.Feign;
 import feign.FeignException;
 import feign.Response;
+import feign.Util;
 import feign.codec.ErrorDecoder;
 import io.mifos.core.api.annotation.ThrowsException;
 import io.mifos.core.api.annotation.ThrowsExceptions;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -60,16 +62,25 @@ class AnnotatedErrorDecoder implements ErrorDecoder {
   }
 
   private RuntimeException getAlternative(final String methodKey, final Response response) {
-    if (response.status() == HttpStatus.BAD_REQUEST.value()) {
-      return new IllegalArgumentException(response.reason());
-    } else if (response.status() == HttpStatus.FORBIDDEN.value()) {
-      return new InvalidTokenException(response.reason());
-    } else if (response.status() == HttpStatus.NOT_FOUND.value()) {
-      return new NotFoundException();
-    } else if (response.status() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-      return new InternalServerError(response.reason());
-    } else {
+    try {
+      final String bodyText = Util.toString(response.body().asReader());
+
+      if (response.status() == HttpStatus.BAD_REQUEST.value()) {
+        return new IllegalArgumentException(bodyText);
+      } else if (response.status() == HttpStatus.FORBIDDEN.value()) {
+        return new InvalidTokenException(bodyText);
+      } else if (response.status() == HttpStatus.NOT_FOUND.value()) {
+        return new NotFoundException(bodyText);
+      } else if (response.status() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+        return new InternalServerError(bodyText);
+      } else {
+        return FeignException.errorStatus(methodKey, response);
+      }
+
+    } catch (IOException e) {
+
       return FeignException.errorStatus(methodKey, response);
+
     }
   }
 
