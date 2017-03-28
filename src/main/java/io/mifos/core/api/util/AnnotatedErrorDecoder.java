@@ -18,12 +18,14 @@ package io.mifos.core.api.util;
 import feign.Feign;
 import feign.FeignException;
 import feign.Response;
+import feign.Util;
 import feign.codec.ErrorDecoder;
 import io.mifos.core.api.annotation.ThrowsException;
 import io.mifos.core.api.annotation.ThrowsExceptions;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -60,17 +62,28 @@ class AnnotatedErrorDecoder implements ErrorDecoder {
   }
 
   private RuntimeException getAlternative(final String methodKey, final Response response) {
+    final String bodyText = stringifyBody(response);
+
     if (response.status() == HttpStatus.BAD_REQUEST.value()) {
-      return new IllegalArgumentException(response.reason());
+      return new IllegalArgumentException(bodyText);
     } else if (response.status() == HttpStatus.FORBIDDEN.value()) {
-      return new InvalidTokenException(response.reason());
+      return new InvalidTokenException(bodyText);
     } else if (response.status() == HttpStatus.NOT_FOUND.value()) {
-      return new NotFoundException();
+      return new NotFoundException(bodyText);
     } else if (response.status() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
-      return new InternalServerError(response.reason());
+      return new InternalServerError(bodyText);
     } else {
       return FeignException.errorStatus(methodKey, response);
     }
+  }
+
+  private String stringifyBody(final Response response) {
+    try {
+      if (response.body() != null)
+        return Util.toString(response.body().asReader());
+    } catch (IOException ignored) {
+    }
+    return null;
   }
 
   private Optional<ThrowsException> getMatchingAnnotation(
@@ -112,16 +125,23 @@ class AnnotatedErrorDecoder implements ErrorDecoder {
       final ThrowsException throwsExceptionAnnotations) {
     try {
       try {
-        final Constructor<? extends RuntimeException> oneArgumentConstructor =
+        final Constructor<? extends RuntimeException> oneResponseArgumentConstructor =
             throwsExceptionAnnotations.exception().getConstructor(Response.class);
 
-        return Optional.of(oneArgumentConstructor.newInstance(response));
+        return Optional.of(oneResponseArgumentConstructor.newInstance(response));
       } catch (final NoSuchMethodException e) {
+        try {
+          final Constructor<? extends RuntimeException> noArgumentConstructor =
+                  throwsExceptionAnnotations.exception().getConstructor();
 
-        final Constructor<? extends RuntimeException> noArgumentConstructor =
-            throwsExceptionAnnotations.exception().getConstructor();
+          return Optional.of(noArgumentConstructor.newInstance());
+        }
+        catch (final NoSuchMethodException e2) {
+          final Constructor<? extends RuntimeException> noStringArgumentConstructor =
+                  throwsExceptionAnnotations.exception().getConstructor(String.class);
 
-        return Optional.of(noArgumentConstructor.newInstance());
+          return Optional.of(noStringArgumentConstructor.newInstance(stringifyBody(response)));
+        }
       }
     } catch (final InvocationTargetException
         | IllegalAccessException

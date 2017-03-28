@@ -21,4 +21,7 @@ package io.mifos.core.api.util;
 @SuppressWarnings("WeakerAccess")
 public class NotFoundException extends RuntimeException {
 
+  public NotFoundException(final String reason) {
+    super(reason);
+  }
 }
