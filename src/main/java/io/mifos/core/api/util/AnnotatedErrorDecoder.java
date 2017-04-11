@@ -35,12 +35,13 @@ import java.util.Optional;
 /**
  * @author Myrle Krantz
  */
-class AnnotatedErrorDecoder implements ErrorDecoder {
+@SuppressWarnings("WeakerAccess")
+public class AnnotatedErrorDecoder implements ErrorDecoder {
 
   private final Class feignClientClass;
   private final Logger logger;
 
-  AnnotatedErrorDecoder(final Logger logger, final Class feignClientClass) {
+  public AnnotatedErrorDecoder(final Logger logger, final Class feignClientClass) {
     this.logger = logger;
     this.feignClientClass = feignClientClass;
   }
