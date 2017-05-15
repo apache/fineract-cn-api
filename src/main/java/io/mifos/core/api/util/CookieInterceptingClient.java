@@ -48,6 +48,16 @@ class CookieInterceptingClient extends Client.Default {
     return new CookieInterceptor();
   }
 
+  void putCookie(final String relativeUrl, final String cookieName, final String cookieValue) {
+    try {
+      final Map<String, List<String>> map = new HashMap<>();
+      map.put("Set-Cookie", Collections.singletonList(cookieName + "=" + cookieValue));
+      cookieManager.put(mapUriType(target + relativeUrl), map);
+    } catch (final IOException e) {
+      throw new IllegalStateException("Mapping cookies failed unexpectedly.");
+    }
+  }
+
   private class CookieInterceptor implements RequestInterceptor {
     @Override
     public void apply(final RequestTemplate template) {

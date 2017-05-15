@@ -52,4 +52,20 @@ public class ApiFactory {
         .encoder(new GsonEncoder())
         .target(clazz, target);
   }
+
+  public <T> FeignTargetWithCookieJar<T> createWithCookieJar(final Class<T> clazz, final String target) {
+    final CookieInterceptingClient client = new CookieInterceptingClient(target);
+    final T feignTarget = Feign.builder()
+            .contract(new SpringMvcContract())
+            .client(client)
+            .errorDecoder(new AnnotatedErrorDecoder(logger, clazz))
+            .requestInterceptor(new TenantedTargetInterceptor())
+            .requestInterceptor(new TokenedTargetInterceptor())
+            .requestInterceptor(client.getCookieInterceptor())
+            .decoder(new GsonDecoder())
+            .encoder(new GsonEncoder())
+            .target(clazz, target);
+
+    return new FeignTargetWithCookieJar<>(feignTarget, client);
+  }
 }
