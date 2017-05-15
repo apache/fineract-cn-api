@@ -78,4 +78,15 @@ public class CookieInterceptingClientTest {
 
     testSubject.getCookieInterceptor().apply(dummyRequestTemplate);
   }
+
+  @Test()
+  public void setCookieBetweenRemoteCalls() {
+    final CookieInterceptingClient testSubject = new CookieInterceptingClient(TEST_URL);
+    testSubject.putCookie("/blah", "token", "Bearerbear");
+    //request
+    final RequestTemplate dummyRequestTemplate = new RequestTemplate();
+    dummyRequestTemplate.append("/request");
+    testSubject.getCookieInterceptor().apply(dummyRequestTemplate);
+    Assert.assertEquals(Collections.singletonList("token=Bearerbear"), dummyRequestTemplate.headers().get("Cookie"));
+  }
 }
