@@ -50,16 +50,16 @@ public class AnnotatedErrorDecoder implements ErrorDecoder {
   public Exception decode(
       final String methodKey,
       final Response response) {
-    final Optional<Optional<Optional<Exception>>> ret =
+    final Optional<Exception> ret =
         Arrays.stream(feignClientClass.getMethods())
             .filter(method -> Feign.configKey(feignClientClass, method).equals(methodKey))
             .map(method -> {
               final Optional<ThrowsException> annotation = getMatchingAnnotation(response, method);
-              return annotation.map(a -> constructException(response, a));
+              return annotation.flatMap(a -> constructException(response, a));
             })
-            .findAny();
+            .findAny().flatMap(x -> x);
 
-    return unwrapEmbeddedOptional(ret, getAlternative(methodKey, response));
+    return ret.orElse(getAlternative(methodKey, response));
   }
 
   private RuntimeException getAlternative(final String methodKey, final Response response) {
@@ -113,12 +113,6 @@ public class AnnotatedErrorDecoder implements ErrorDecoder {
   private boolean statusMatches(final Response response,
                                 final ThrowsException throwsExceptionAnnotation) {
     return throwsExceptionAnnotation.status().value() == response.status();
-  }
-
-  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-  private <T> T unwrapEmbeddedOptional(
-      final Optional<Optional<Optional<T>>> embeddedOptional, T alternative) {
-    return embeddedOptional.orElse(Optional.empty()).orElse(Optional.empty()).orElse(alternative);
   }
 
   private Optional<Exception> constructException(
