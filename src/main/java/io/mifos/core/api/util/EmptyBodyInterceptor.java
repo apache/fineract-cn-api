@@ -27,7 +27,7 @@ import java.nio.charset.Charset;
  */
 public class EmptyBodyInterceptor implements RequestInterceptor {
 
-  EmptyBodyInterceptor() {
+  public EmptyBodyInterceptor() {
     super();
   }
 
