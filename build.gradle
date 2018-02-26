@@ -11,7 +11,7 @@ plugins {
     id 'com.github.hierynomus.license' version '0.13.1'
 }
 
-group 'io.mifos.core'
+group 'org.apache.fineract.cn'
 version '0.1.0-BUILD-SNAPSHOT'
 
 ext.versions = [
@@ -52,7 +52,7 @@ dependencies {
             [group: 'org.springframework', name: 'spring-context', version: versions.springcontext],
             [group: 'com.google.code.findbugs', name: 'jsr305', version: versions.findbugs],
             [group: 'com.netflix.feign', name: 'feign-gson', version: versions.feigngson],
-            [group: 'io.mifos.core', name: 'lang', version: versions.frameworklangversion],
+            [group: 'org.apache.fineract.cn', name: 'lang', version: versions.frameworklangversion],
     )
 
     testCompile(
