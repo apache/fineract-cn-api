@@ -19,7 +19,7 @@
 package io.mifos.core.api.util;
 
 import feign.RequestTemplate;
-import io.mifos.core.lang.TenantContextHolder;
+import org.apache.fineract.cn.lang.TenantContextHolder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

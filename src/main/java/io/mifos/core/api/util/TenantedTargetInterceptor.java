@@ -18,11 +18,11 @@
  */
 package io.mifos.core.api.util;
 
+import static org.apache.fineract.cn.lang.config.TenantHeaderFilter.TENANT_HEADER;
+
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import io.mifos.core.lang.TenantContextHolder;
-
-import static io.mifos.core.lang.config.TenantHeaderFilter.TENANT_HEADER;
+import org.apache.fineract.cn.lang.TenantContextHolder;
 
 
 /**
