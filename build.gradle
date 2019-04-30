@@ -27,6 +27,7 @@ buildscript {
 plugins {
     id 'com.github.hierynomus.license' version '0.13.1'
     id("org.nosphere.apache.rat") version "0.3.1"
+    id "com.jfrog.artifactory" version "4.9.5"
 }
 
 group 'org.apache.fineract.cn'
@@ -55,6 +56,7 @@ tasks.withType(JavaCompile) {
 repositories {
     jcenter()
     mavenLocal()
+    maven { url 'https://mifos.jfrog.io/mifos/libs-snapshot/' }
 }
 
 dependencyManagement {
@@ -82,17 +84,33 @@ jar {
     from sourceSets.main.allSource
 }
 
-
 publishing {
     publications {
         apiPublication(MavenPublication) {
             from components.java
             groupId project.group
             artifactId project.name
-            version project.version
+            version findProperty('externalVersion') ?: project.version
         }
     }
 }
+
+artifactory {
+    contextUrl = System.getenv("ARTIFACTORY_URL")
+    publish {
+        repository {
+            repoKey = project.findProperty('artifactoryRepoKey')
+            username = System.getenv("ARTIFACTORY_USER")
+            password = System.getenv("ARTIFACTORY_PASSWORD")
+        }
+
+        defaults {
+            publications ('apiPublication')
+        }
+    }
+}
+artifactoryPublish.dependsOn('clean','publishToMavenLocal')
+
 
 license {
     header rootProject.file('HEADER')
