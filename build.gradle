@@ -34,14 +34,14 @@ plugins {
 }
 
 group 'org.apache.fineract.cn'
-version '0.1.0-BUILD-SNAPSHOT'
+version 'spring_boot_2'
 
 ext.versions = [
         springcontext        : '4.3.3.RELEASE',
         springboot           : '1.4.1.RELEASE',
         feigngson            : '8.16.2',
         findbugs             : '3.0.1',
-        frameworklangversion : '0.1.0-BUILD-SNAPSHOT'
+        frameworklangversion : 'spring_boot_2'
 ]
 
 apply plugin: 'io.spring.dependency-management'
