@@ -25,9 +25,9 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.hierynomus.license' version '0.13.1'
-    id("org.nosphere.apache.rat") version "0.3.1"
-    id "com.jfrog.artifactory" version "4.9.5"
+    id 'com.github.hierynomus.license' version '0.15.0'
+    id("org.nosphere.apache.rat") version "0.6.0"
+    id "com.jfrog.artifactory" version "4.15.1"
     id 'maven-publish'
     id 'idea'
     id 'java'
@@ -37,10 +37,10 @@ group 'org.apache.fineract.cn'
 version '0.1.0-BUILD-SNAPSHOT'
 
 ext.versions = [
-        springcontext        : '4.3.3.RELEASE',
-        springboot           : '1.4.1.RELEASE',
-        feigngson            : '8.16.2',
-        findbugs             : '3.0.1',
+        springcontext        : '5.2.5.RELEASE',
+        springboot           : '2.2.6.RELEASE',
+        feigngson            : '8.18.0',
+        findbugs             : '3.0.2',
         frameworklangversion : '0.1.0-BUILD-SNAPSHOT'
 ]
 
@@ -59,14 +59,14 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.cloud:spring-cloud-netflix:1.2.0.RELEASE'
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Camden.SR1'
     }
 }
 
 dependencies {
     compile(
-            [group: 'org.springframework.cloud', name: 'spring-cloud-starter-feign'],
-            [group: 'org.springframework.cloud', name: 'spring-cloud-starter-eureka'],
+            [group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign'],
+            [group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-eureka-client'],
             [group: 'org.springframework', name: 'spring-context', version: versions.springcontext],
             [group: 'com.google.code.findbugs', name: 'jsr305', version: versions.findbugs],
             [group: 'com.netflix.feign', name: 'feign-gson', version: versions.feigngson],
