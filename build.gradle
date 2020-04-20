@@ -59,7 +59,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Camden.SR1'
+        mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Hoxton.SR2'
     }
 }
 
@@ -128,6 +128,8 @@ rat {
             "build/**",
             "gradlew",
             "gradlew.bat",
-            "README.md"
+            "README.md",
+            ".project",
+            ".settings/**"
     ]
 }
