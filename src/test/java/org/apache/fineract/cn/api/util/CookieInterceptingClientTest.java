@@ -38,12 +38,12 @@ import java.util.*;
  */
 public class CookieInterceptingClientTest {
   private final static String TEST_URL = "http://igle.pop.org/app/v1/";
+  private final Request request = Request.create("GET", TEST_URL, Collections.emptyMap(), new byte[]{}, Charset.defaultCharset());
 
   @Test
   public void cookiesPlacedInJarThenAttachedToRequest() throws IOException, URISyntaxException {
     final CookieInterceptingClient testSubject = new CookieInterceptingClient(TEST_URL);
 
-    //response
     final CookieInterceptingClient spiedTestSubject = Mockito.spy(testSubject);
 
     final Map<String, Collection<String>> cookieHeaders = new HashMap<>();
@@ -52,11 +52,12 @@ public class CookieInterceptingClientTest {
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .reason("blah")
             .headers(cookieHeaders)
+            .request(this.request)
             .build();
 
     Mockito.doReturn(dummyResponse).when(spiedTestSubject).superExecute(Mockito.anyObject(), Mockito.anyObject());
 
-    spiedTestSubject.execute(Request.create("", TEST_URL +"request", Collections.emptyMap(), new byte[]{}, Charset.defaultCharset()), new Request.Options());
+    spiedTestSubject.execute(this.request, new Request.Options());
 
     final Map<String, List<String>> ret = testSubject.cookieManager.get(new URI(TEST_URL), Collections.emptyMap());
     Assert.assertEquals(ret.get("Cookie"), Collections.singletonList("x=y"));

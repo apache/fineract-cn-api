@@ -25,7 +25,7 @@ import org.apache.fineract.cn.api.config.ApiConfiguration;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cloud.netflix.feign.support.SpringMvcContract;
+import org.springframework.cloud.openfeign.support.SpringMvcContract;
 import org.springframework.stereotype.Component;
 
 /**
