@@ -21,6 +21,7 @@ package org.apache.fineract.cn.api.util;
 import feign.Feign;
 import feign.FeignException;
 import feign.Response;
+import feign.Request;
 import org.apache.fineract.cn.api.annotation.ThrowsException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,51 +51,62 @@ public class AnnotatedErrorDecoderTest {
   public static Collection testCases() throws NoSuchMethodException {
     final Collection<TestCase> ret = new ArrayList<>();
 
+    final String TEST_URL = "http://igle.pop.org/app/v1/";
+    final Request request = Request.create("GET", TEST_URL, Collections.emptyMap(), new byte[]{}, Charset.defaultCharset());
+  
     final Response emptyInternalServerErrorResponse = Response.builder()
             .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .body("blah", Charset.defaultCharset())
             .headers(Collections.emptyMap())
+            .request(request)
             .build();
 
     final Response emptyBadRequestResponse = Response.builder()
             .status(HttpStatus.BAD_REQUEST.value())
             .body("blah", Charset.defaultCharset())
             .headers(Collections.emptyMap())
+            .request(request)
             .build();
 
     final Response emptyBadRequestResponseWithNoBody = Response.builder()
             .status(HttpStatus.BAD_REQUEST.value())
             .headers(Collections.emptyMap())
+            .request(request)
             .build();
 
     final Response emptyNotFoundRequestResponse = Response.builder()
             .status(HttpStatus.NOT_FOUND.value())
             .body("blah", Charset.defaultCharset())
             .headers(Collections.emptyMap())
+            .request(request)
             .build();
 
     final Response emptyConflictResponse = Response.builder()
             .status(HttpStatus.CONFLICT.value())
             .body("blah", Charset.defaultCharset())
             .headers(Collections.emptyMap())
+            .request(request)
             .build();
 
     final Response emptyIAmATeapotResponse = Response.builder()
             .status(HttpStatus.I_AM_A_TEAPOT.value())
             .body("blah", Charset.defaultCharset())
             .headers(Collections.emptyMap())
+            .request(request)
             .build();
 
     final Response emptyUnauthorizedResponse = Response.builder()
             .status(HttpStatus.UNAUTHORIZED.value())
             .body("blah", Charset.defaultCharset())
             .headers(Collections.emptyMap())
+            .request(request)
             .build();
 
     final Response emptyForbiddenResponse = Response.builder()
             .status(HttpStatus.FORBIDDEN.value())
             .body("blah", Charset.defaultCharset())
             .headers(Collections.emptyMap())
+            .request(request)
             .build();
 
     final String madeUpMethodKey = "x";
@@ -106,10 +118,10 @@ public class AnnotatedErrorDecoderTest {
         Feign.configKey(OneMethodInterface.class, OneMethodInterface.class.getMethod("method"));
 
     final String onceAnnotatedMethodKey =
-            Feign.configKey(OneMethodOneAnnotationInterface.class, OneMethodOneAnnotationInterface.class.getMethod("method"));
+        Feign.configKey(OneMethodOneAnnotationInterface.class, OneMethodOneAnnotationInterface.class.getMethod("method"));
 
     final String onceAnnotatedWithStringExceptionMethodKey =
-            Feign.configKey(OneMethodOneAnnotationStringParameteredExceptionInterface.class, OneMethodOneAnnotationStringParameteredExceptionInterface.class.getMethod("method"));
+        Feign.configKey(OneMethodOneAnnotationStringParameteredExceptionInterface.class, OneMethodOneAnnotationStringParameteredExceptionInterface.class.getMethod("method"));
 
     ret.add(new TestCase("Methodless interface")
         .clazz(MethodlessInterface.class)
@@ -154,10 +166,10 @@ public class AnnotatedErrorDecoderTest {
         .expectedResult(new ParameterlessException()));
 
     ret.add(new TestCase("Interface with one method that has one annotation containing an exception which accepts a string parameter.")
-            .clazz(OneMethodOneAnnotationStringParameteredExceptionInterface.class)
-            .methodKey(onceAnnotatedWithStringExceptionMethodKey)
-            .response(emptyBadRequestResponse)
-            .expectedResult(new StringParameteredException("blah")));
+        .clazz(OneMethodOneAnnotationStringParameteredExceptionInterface.class)
+        .methodKey(onceAnnotatedWithStringExceptionMethodKey)
+        .response(emptyBadRequestResponse)
+        .expectedResult(new StringParameteredException("blah")));
 
     ret.add(new TestCase("Bad request on an interface in which bad request isn't mapped.")
         .clazz(AnnotationlessInterface.class)
@@ -166,17 +178,17 @@ public class AnnotatedErrorDecoderTest {
         .expectedResult(new IllegalArgumentException("blah")));
 
     ret.add(new TestCase("Bad request with no body on an interface in which bad request isn't mapped.")
-            .clazz(AnnotationlessInterface.class)
-            .methodKey(annotationlessMethodKey)
-            .response(emptyBadRequestResponseWithNoBody)
-            .expectedResult(new IllegalArgumentException((String)null)));
+        .clazz(AnnotationlessInterface.class)
+        .methodKey(annotationlessMethodKey)
+        .response(emptyBadRequestResponseWithNoBody)
+        .expectedResult(new IllegalArgumentException((String)null)));
 
 
     ret.add(new TestCase("Not found request on an interface in which not found request isn't mapped.")
-            .clazz(AnnotationlessInterface.class)
-            .methodKey(annotationlessMethodKey)
-            .response(emptyNotFoundRequestResponse)
-            .expectedResult(new NotFoundException("blah")));
+        .clazz(AnnotationlessInterface.class)
+        .methodKey(annotationlessMethodKey)
+        .response(emptyNotFoundRequestResponse)
+        .expectedResult(new NotFoundException("blah")));
 
     ret.add(new TestCase("Request with invalid token.")
         .clazz(OneMethodOneAnnotationInterface.class)
